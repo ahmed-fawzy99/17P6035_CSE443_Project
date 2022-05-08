@@ -14,7 +14,7 @@ def find_inode_of_file():
         clear()
         filename = input("Please enter the file name you are looking for (example: 'test.txt'):\n> ")
         print("")
-        file_path = subprocess.run(f'find /home -name {filename} -print 2>/dev/null | grep .', shell=True,
+        file_path = subprocess.run(f'find {search_dir} -name {filename} -print 2>/dev/null | grep .', shell=True,
                                    capture_output=True)
         find_path_status = file_path.returncode
 
@@ -55,7 +55,7 @@ def find_file_by_inode():
         clear()
         inode_number = int(input("Please enter the inode number you are looking for (example: '791910'):\n> "))
         print("")
-        file_path = subprocess.run(f'find /home -inum {inode_number} -print 2>/dev/null | grep .', shell=True,
+        file_path = subprocess.run(f'find {search_dir} -inum {inode_number} -print 2>/dev/null | grep .', shell=True,
                                    capture_output=True)
         find_path_status = file_path.returncode
 
@@ -163,7 +163,7 @@ def packet_capture():
             cmd_index = command.find('tcpdump')
             command = command[:cmd_index] + f"timeout {sec_count} " + command[cmd_index:]
             subprocess.run(command, shell=True)
-            open_option = input("\nSuccess. a PCAB capture is saved to the current directory as this python "
+            open_option = input("\nSuccess. a PCAP capture is saved to the current directory as this python "
                                 "code's directory.\nWould you like to read this file now? [Y/N]\n> ").upper()
             if open_option == 'Y':
                 subprocess.run(f'tcpdump -r webserver.pcap', shell=True)
@@ -175,7 +175,7 @@ def packet_capture():
             packet_count = int(input("\nAfter how many packets should the program terminate?\n> "))
             command += f" -c{packet_count}"
             subprocess.run(command, shell=True)
-            open_option = input("Success. a PCAB capture is saved to the current directory as this python "
+            open_option = input("Success. a PCAP capture is saved to the current directory as this python "
                                 "code's directory.\nWould you like to read this file now? [Y/N]\n> ").upper()
             if open_option == 'Y':
                 subprocess.run(f'tcpdump -r webserver.pcap', shell=True)
@@ -208,15 +208,73 @@ def bit_by_bit_image():
         input("\nPress any key to continue..")
 
 def read_trace_file():
-    None
+
+    while True:
+        file_choice = input("\nChoose an option (1 or 2 - Enter 'q' to quit):\n1. I will enter the file path manually (example: "
+                            "~/Desktop/webserver.pcap).\n2. I will enter the file name and the tool should search for it "
+                            "then open it.\n> ")
+        if file_choice == '1':
+            file_path = input("\nPlease Enter the path of the trace file (example: ~/Desktop/webserver.pcap)\n>")
+            subprocess.run(f'tcpdump -r {file_path}', shell=True)
+            input("\nPress any key to continue..")
+        elif file_choice == '2':
+            filename = input("Please enter the file name you are looking for (example: 'webserver.pcap'):\n> ")
+            file_path = subprocess.run(f'find {search_dir} -name {filename} -print 2>/dev/null | grep .', shell=True,
+                                       capture_output=True)
+            find_path_status = file_path.returncode
+            print("")
+
+            if not find_path_status:  # if the return code is 0 i.e. success
+                file_paths = separate_paths(file_path.stdout.decode())
+                print(f"{len(file_paths)} file(s) under that name were found:")
+                for i in range(len(file_paths)):
+                    print(f"\nFile_#{i + 1}: File is found at: {file_paths[i]}")
+                    inode_command = subprocess.run(f'ls -i {file_paths[i]}', shell=True,
+                                                   capture_output=True)  # returns inode + path
+                if len(file_paths) == 1:
+                    print("")
+                    subprocess.run(f'tcpdump -r {file_paths[0]}', shell=True)
+                    input("\nPress any key to continue..")
+                    break
+                else:
+                    while True:
+                        id = int(input("\nEnter File_# of the file (1, 2, 3.. etc). Enter '-1' to quit:\n> "))
+                        if id == -1:
+                            break
+                        if id > len(file_paths) or id <= 0:
+                            print("Incorrect ID. Please Try Again...")
+                            continue
+                        else:
+                            subprocess.run(f'tcpdump -r {file_paths[id - 1]}', shell=True)
+
+                    time.sleep(1)
+                    choice = input("\n\nWould you like to read another trace file? [Y/N]\n> ").upper()
+                    if choice == 'N':
+                        return
+            else:
+                print("\nFile is not found, please recheck the input filename if you are sure it's on the system.")
+        elif file_choice == 'q' or file_choice == 'Q':
+            return
+        else:
+            print("Incorrect choice entered. Please Try again.")
+
+#######################################################################################################################
 
 print("Welcome to Mini Forensics Tool!")
+
+search_dir = "/home"
+
+# The tool only performs search in the home directory (/home) for speed purposes. If you want the tool to search the
+# Entire File system (i.e. the root directory /), please uncomment the next line.
+# search_dir = "/"
+
 while True:
     option = int(input("The tool has the following services:\n1. Find the inode number of a file.\n"
                        "2. Find the file that belongs to a specific inode.\n"
                        "3. Make a packet capture from network device.\n"
                        "4. Make a Take a bit-by-bit image for a drive.\n"
-                       "5. Quit the Tool\n\nChoose an option (1, 2, 3, or 4):\n> "))
+                       "5. Read a trace file.\n"
+                       "6. Quit the Tool\n\nChoose an option (1, 2, 3, or 4):\n> "))
     if option == 1:
         find_inode_of_file()
     elif option == 2:
@@ -226,6 +284,8 @@ while True:
     elif option == 4:
         bit_by_bit_image()
     elif option == 5:
+        read_trace_file()
+    elif option == 6:
         break
     else:
         print("Incorrect option. Please Enter a valid number.")
