@@ -269,23 +269,23 @@ search_dir = "/home"
 # search_dir = "/"
 
 while True:
-    option = int(input("The tool has the following services:\n1. Find the inode number of a file.\n"
+    option = input("The tool has the following services:\n1. Find the inode number of a file.\n"
                        "2. Find the file that belongs to a specific inode.\n"
                        "3. Make a packet capture from network device.\n"
                        "4. Make a Take a bit-by-bit image for a drive.\n"
                        "5. Read a trace file.\n"
-                       "6. Quit the Tool\n\nChoose an option (1, 2, 3, or 4):\n> "))
-    if option == 1:
+                       "6. Quit the Tool\n\nChoose an option (1, 2, 3, 4, 5 or 6):\n> ")
+    if option == '1':
         find_inode_of_file()
-    elif option == 2:
+    elif option == '2':
         find_file_by_inode()
-    elif option == 3:
+    elif option == '3':
         packet_capture()
-    elif option == 4:
+    elif option == '4':
         bit_by_bit_image()
-    elif option == 5:
+    elif option == '5':
         read_trace_file()
-    elif option == 6:
+    elif option == '6':
         break
     else:
         print("Incorrect option. Please Enter a valid number.")
