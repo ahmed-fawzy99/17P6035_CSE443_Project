@@ -47,7 +47,7 @@ def find_inode_of_file():
             if choice == 'N':
                 return
         else:
-            print("File is not found, please recheck the input filename if you are sure it's on the system.")
+            input("File is not found, please recheck the input filename if you are sure it's on the system.")
 
 
 def find_file_by_inode():
@@ -89,7 +89,7 @@ def find_file_by_inode():
             if choice == 'N':
                 return
         else:
-            print("inode number is not found, please recheck the input inode if you are sure it's on the system.")
+            input("inode number is not found, please recheck the input inode if you are sure it's on the system.")
 
 
 def packet_capture():
@@ -289,5 +289,5 @@ while True:
         break
     else:
         print("Incorrect option. Please Enter a valid number.")
-        time.sleep(1)
+        time.sleep(2)
     clear()
