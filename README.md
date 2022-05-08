@@ -17,7 +17,7 @@ Mini forensics tool is a simple tool that provides basic functionalities for fin
 5. Make a packet capture from network device
 
 ### How To Run the code
-Note: This code only support Linux distributions.
+Note: This code only supports Linux distributions.
 1. Download the Project as ZIP file from GitHub
 2. Extract the ZIP file
 3. In the project directory, open the terminal and run the following code
